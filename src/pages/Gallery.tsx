@@ -1,225 +1,109 @@
-import { ChangeEvent, useEffect, useState } from "react";
-import { ImagePlus, Trash2 } from "lucide-react";
+import { useState } from "react";
 import Layout from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
 
-type UploadedPhoto = {
+// ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+type Photo = {
   id: string;
-  name: string;
   url: string;
-  uploadedAt: string;
+  caption: string;
+  category: "Workshops" | "Hackathons" | "Technical Events" | "Projects" | "Fun Activities";
 };
 
-const MAX_PHOTOS = 24;
-const MAX_FILE_SIZE_MB = 8;
-
-const galleryItems = [
-  { title: "Workshop Highlights", emoji: "🎓" },
-  { title: "Hackathon Moments", emoji: "💻" },
-  { title: "Community Meetups", emoji: "🤝" },
-  { title: "Team Collaborations", emoji: "🧠" },
-  { title: "Tech Talks", emoji: "🎤" },
-  { title: "Club Achievements", emoji: "🏆" },
+const photos: Photo[] = [
+  
+  // },
 ];
 
+const FILTERS = ["All", "Workshops", "Hackathons", "Technical Events", "Projects", "Fun Activities"] as const;
+type Filter = (typeof FILTERS)[number];
+
 const Gallery = () => {
-  const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState<Filter>("All");
 
-  const loadPhotos = async () => {
-    try {
-      const response = await fetch("/api/gallery");
-      const payload = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(payload?.message || "Failed to load gallery.");
-      }
-
-      setPhotos(Array.isArray(payload?.photos) ? payload.photos : []);
-      setErrorMessage("");
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Could not load gallery photos.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void loadPhotos();
-  }, []);
-
-  const handleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    setErrorMessage("");
-    const selectedFiles = Array.from(event.target.files || []);
-
-    if (!selectedFiles.length) {
-      return;
-    }
-
-    if (photos.length + selectedFiles.length > MAX_PHOTOS) {
-      setErrorMessage(`You can keep up to ${MAX_PHOTOS} photos in the gallery.`);
-      event.target.value = "";
-      return;
-    }
-
-    const oversized = selectedFiles.find((file) => file.size > MAX_FILE_SIZE_MB * 1024 * 1024);
-    if (oversized) {
-      setErrorMessage(`${oversized.name} is too large. Max size is ${MAX_FILE_SIZE_MB}MB per image.`);
-      event.target.value = "";
-      return;
-    }
-
-    const formData = new FormData();
-    selectedFiles.forEach((file) => formData.append("photos", file));
-
-    setIsUploading(true);
-    try {
-      const response = await fetch("/api/gallery", {
-        method: "POST",
-        body: formData,
-      });
-
-      const payload = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(payload?.message || "Upload failed. Please try again.");
-      }
-
-      const newPhotos = Array.isArray(payload?.photos) ? payload.photos : [];
-      setPhotos((prev) => [...newPhotos, ...prev]);
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Could not upload photos.");
-    } finally {
-      setIsUploading(false);
-      event.target.value = "";
-    }
-  };
-
-  const handleDeletePhoto = async (id: string) => {
-    setErrorMessage("");
-    try {
-      const response = await fetch(`/api/gallery/${id}`, { method: "DELETE" });
-      const payload = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(payload?.message || "Could not delete photo.");
-      }
-
-      setPhotos((prev) => prev.filter((photo) => photo.id !== id));
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Could not delete photo.");
-    }
-  };
+  const filtered =
+    activeFilter === "All" ? photos : photos.filter((p) => p.category === activeFilter);
 
   return (
     <Layout>
+      {/* ── HERO ── */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-hero-gradient opacity-40" />
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Event <span className="text-gradient">Gallery</span>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-gradient">Gallery</span>
             </h1>
-            <p className="text-lg text-muted-foreground">
-              A visual snapshot of X-Ops community events, learning sessions, and milestones.
+            <p className="text-muted-foreground text-lg">
+              Moments captured from our journey
             </p>
+            <div className="mx-auto mt-4 h-0.5 w-24 bg-gradient-to-r from-blue-500 to-pink-500 rounded-full" />
           </div>
         </div>
       </section>
 
-      <section className="pb-12">
+      {/* ── FILTER BUTTONS ── */}
+      <section className="pb-8">
         <div className="container mx-auto px-4">
-          <div className="glass border border-border/50 rounded-2xl p-6 md:p-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-semibold">Add Photos From Your Device</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Upload JPG, PNG, WEBP, or GIF images. Photos are shared from the server.
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <label
-                  htmlFor="gallery-upload"
-                  className="inline-flex items-center gap-2 h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium cursor-pointer hover:opacity-90 transition-opacity"
-                >
-                  <ImagePlus className="h-4 w-4" />
-                  {isUploading ? "Uploading..." : "Upload Photos"}
-                </label>
-                <input
-                  id="gallery-upload"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={handleUpload}
-                  disabled={isUploading}
-                />
-                <Button type="button" variant="outline" onClick={() => void loadPhotos()} disabled={isUploading}>
-                  Refresh
-                </Button>
-              </div>
-            </div>
-
-            {errorMessage && <p className="text-sm text-destructive mt-4">{errorMessage}</p>}
-            {isLoading && <p className="text-sm text-muted-foreground mt-4">Loading gallery photos...</p>}
-
-            <p className="text-xs text-muted-foreground mt-4">
-              {photos.length} / {MAX_PHOTOS} photos shown
-            </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            {FILTERS.map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setActiveFilter(filter)}
+                className={`px-5 py-2 rounded-full text-sm font-medium border transition-all duration-200
+                  ${
+                    activeFilter === filter
+                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white border-transparent shadow-lg shadow-purple-500/20"
+                      : "bg-transparent border-border/50 text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                  }`}
+              >
+                {filter}
+              </button>
+            ))}
           </div>
         </div>
       </section>
 
-      {photos.length > 0 && (
-        <section className="pb-16">
-          <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold mb-6">Uploaded Photos</h2>
+      {/* ── PHOTO GRID ── */}
+      <section className="pb-24">
+        <div className="container mx-auto px-4">
+          {filtered.length === 0 ? (
+            <div className="text-center py-24 text-muted-foreground">
+              <p className="text-5xl mb-4">📸</p>
+              <p className="text-lg font-medium">Photos coming soon</p>
+              <p className="text-sm mt-1">Check back after the next event!</p>
+            </div>
+          ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {photos.map((photo, index) => (
+              {filtered.map((photo, index) => (
                 <article
                   key={photo.id}
-                  className="gradient-border p-3 card-hover animate-fade-in-up"
+                  className="gradient-border p-3 card-hover animate-fade-in-up rounded-2xl"
                   style={{ animationDelay: `${index * 0.05}s` }}
                 >
-                  <div className="relative rounded-lg overflow-hidden bg-card">
-                    <img src={photo.url} alt={photo.name} className="w-full h-56 object-cover" loading="lazy" />
-                    <button
-                      type="button"
-                      onClick={() => void handleDeletePhoto(photo.id)}
-                      className="absolute top-2 right-2 h-8 w-8 rounded-full bg-background/90 hover:bg-background flex items-center justify-center border border-border/60"
-                      aria-label={`Delete ${photo.name}`}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </button>
+                  <div className="relative rounded-xl overflow-hidden bg-card">
+                    <img
+                      src={photo.url}
+                      alt={photo.caption}
+                      className="w-full h-56 object-cover transition-transform duration-300 hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-3">
+                      <span className="text-xs font-medium text-white/70 uppercase tracking-wider">
+                        {photo.category}
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-3 truncate" title={photo.name}>
-                    {photo.name}
-                  </p>
+                  {photo.caption && (
+                    <p className="text-sm text-muted-foreground mt-3 px-1 truncate" title={photo.caption}>
+                      {photo.caption}
+                    </p>
+                  )}
                 </article>
               ))}
             </div>
-          </div>
-        </section>
-      )}
-
-      <section className="pb-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6">Club Highlights</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {galleryItems.map((item, index) => (
-              <article
-                key={item.title}
-                className="gradient-border p-8 card-hover animate-fade-in-up"
-                style={{ animationDelay: `${index * 0.08}s` }}
-              >
-                <div className="text-5xl mb-4">{item.emoji}</div>
-                <h2 className="text-xl font-semibold mb-2">{item.title}</h2>
-                <p className="text-sm text-muted-foreground">More event photos and highlights coming soon.</p>
-              </article>
-            ))}
-          </div>
+          )}
         </div>
       </section>
     </Layout>
