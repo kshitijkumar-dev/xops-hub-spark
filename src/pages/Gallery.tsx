@@ -22,10 +22,10 @@ type GalleryEvent = {
 
 const events: GalleryEvent[] = [
   {
-    id: "chaos-or-release",
-    title: "Chaos Or Release?",
-    category: "Technical Events",
-    description: "A DevOps decision-making challenge where teams navigated real-world deployment scenarios.",
+    id: "Statistics and Probability in Real World: Turning Uncertanity into Opportunity",
+    title: "Statistics and Probability in Real World: Turning Uncertanity into Opportunity",
+    category: "Workshops",
+    description: "Enriching the knowledge of First-Year Students through JU Transformation.",
     photos: [
       // ADD YOUR DRIVE PHOTO IDs HERE like this:
       // { id: "1", url: "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID", caption: "Teams in action" },
@@ -43,6 +43,29 @@ const events: GalleryEvent[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────
+
+
+const events: GalleryEvent[] = [
+  {
+    id: "chaos-or-release",
+    title: "Chaos Or Release?",
+    category: "Workshops",
+    description: "A DevOps decision-making challenge where teams navigated real-world deployment scenarios.",
+    photos: [
+      // ADD YOUR DRIVE PHOTO IDs HERE like this:
+      // { id: "1", url: "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID", caption: "Teams in action" },
+    ],
+  },
+
+  // ── ADD MORE EVENTS BELOW THIS LINE ──
+  // {
+  //   id: "your-event-id",
+  //   title: "Your Event Name",
+  //   category: "Workshops",
+  //   description: "Short description of the event.",
+  //   photos: [],
+  // },
+];
 
 const FILTERS = ["All", "Workshops", "Hackathons", "Technical Events", "Projects", "Fun Activities"] as const;
 type Filter = (typeof FILTERS)[number];
