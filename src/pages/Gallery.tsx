@@ -22,48 +22,25 @@ type GalleryEvent = {
 
 const events: GalleryEvent[] = [
   {
-    id: "Statistics and Probability in Real World: Turning Uncertanity into Opportunity",
+    id: "chaos-or-release",
+    title: "Chaos Or Release?",
+    category: "Technical Events",
+    description: "A DevOps decision-making challenge where teams navigated real-world deployment scenarios.",
+    photos: [],
+  },
+
+  {
+    id: "statistics-probability-workshop",
     title: "Statistics and Probability in Real World: Turning Uncertanity into Opportunity",
     category: "Workshops",
     description: "Enriching the knowledge of First-Year Students through JU Transformation.",
-    photos: [
-      // ADD YOUR DRIVE PHOTO IDs HERE like this:
-      // { id: "1", url: "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID", caption: "Teams in action" },
-    ],
+    photos: [],
   },
 
   // ── ADD MORE EVENTS BELOW THIS LINE ──
-  // {
-  //   id: "your-event-id",
-  //   title: "Your Event Name",
-  //   category: "Workshops",
-  //   description: "Short description of the event.",
-  //   photos: [],
-  // },
 ];
 
 // ─────────────────────────────────────────────────────────────
-
-  {
-    id: "chaos-or-release",
-    title: "Chaos Or Release?",
-    category: "Workshops",
-    description: "A DevOps decision-making challenge where teams navigated real-world deployment scenarios.",
-    photos: [
-      // ADD YOUR DRIVE PHOTO IDs HERE like this:
-      // { id: "1", url: "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID", caption: "Teams in action" },
-    ],
-  },
-
-  // ── ADD MORE EVENTS BELOW THIS LINE ──
-  // {
-  //   id: "your-event-id",
-  //   title: "Your Event Name",
-  //   category: "Workshops",
-  //   description: "Short description of the event.",
-  //   photos: [],
-  // },
-];
 
 const FILTERS = ["All", "Workshops", "Hackathons", "Technical Events", "Projects", "Fun Activities"] as const;
 type Filter = (typeof FILTERS)[number];
@@ -73,7 +50,6 @@ const EventCard = ({ event }: { event: GalleryEvent }) => {
 
   return (
     <article className="gradient-border rounded-2xl overflow-hidden card-hover animate-fade-in-up">
-      {/* Card Header — always visible */}
       <button
         onClick={() => setExpanded((prev) => !prev)}
         className="w-full text-left p-6 flex items-start justify-between gap-4 group"
@@ -97,7 +73,6 @@ const EventCard = ({ event }: { event: GalleryEvent }) => {
         </div>
       </button>
 
-      {/* Expanded Photo Grid */}
       {expanded && (
         <div className="px-6 pb-6">
           {event.photos.length === 0 ? (
@@ -143,7 +118,6 @@ const Gallery = () => {
 
   return (
     <Layout>
-      {/* ── HERO ── */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-hero-gradient opacity-40" />
         <div className="container mx-auto px-4 relative z-10">
@@ -159,7 +133,6 @@ const Gallery = () => {
         </div>
       </section>
 
-      {/* ── FILTER BUTTONS ── */}
       <section className="pb-8">
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-3">
@@ -181,7 +154,6 @@ const Gallery = () => {
         </div>
       </section>
 
-      {/* ── EVENT CARDS ── */}
       <section className="pb-24">
         <div className="container mx-auto px-4 max-w-4xl">
           {filtered.length === 0 ? (
