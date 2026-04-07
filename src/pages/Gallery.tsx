@@ -44,8 +44,6 @@ const events: GalleryEvent[] = [
 
 // ─────────────────────────────────────────────────────────────
 
-
-const events: GalleryEvent[] = [
   {
     id: "chaos-or-release",
     title: "Chaos Or Release?",
