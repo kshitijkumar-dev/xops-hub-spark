@@ -1,29 +1,124 @@
 import { useState } from "react";
 import Layout from "@/components/layout/Layout";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+//  HOW TO ADD A NEW EVENT:
+//  1. Add an object to the `events` array below
+//  2. For photos, add Drive file IDs to the `photos` array
+//     Get FILE_ID from: https://drive.google.com/file/d/FILE_ID/view
+//     URL format: https://drive.google.com/uc?export=view&id=FILE_ID
+// ─────────────────────────────────────────────────────────────
 
-// ─────────────────────────────────────────────
-type Photo = {
+type Category = "Workshops" | "Hackathons" | "Technical Events" | "Projects" | "Fun Activities";
+
+type GalleryEvent = {
   id: string;
-  url: string;
-  caption: string;
-  category: "Workshops" | "Hackathons" | "Technical Events" | "Projects" | "Fun Activities";
+  title: string;
+  category: Category;
+  description: string;
+  photos: { id: string; url: string; caption?: string }[];
 };
 
-const photos: Photo[] = [
-  
+const events: GalleryEvent[] = [
+  {
+    id: "chaos-or-release",
+    title: "Chaos Or Release?",
+    category: "Technical Events",
+    description: "A DevOps decision-making challenge where teams navigated real-world deployment scenarios.",
+    photos: [
+      // ADD YOUR DRIVE PHOTO IDs HERE like this:
+      // { id: "1", url: "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID", caption: "Teams in action" },
+    ],
+  },
+
+  // ── ADD MORE EVENTS BELOW THIS LINE ──
+  // {
+  //   id: "your-event-id",
+  //   title: "Your Event Name",
+  //   category: "Workshops",
+  //   description: "Short description of the event.",
+  //   photos: [],
   // },
 ];
 
+// ─────────────────────────────────────────────────────────────
+
 const FILTERS = ["All", "Workshops", "Hackathons", "Technical Events", "Projects", "Fun Activities"] as const;
 type Filter = (typeof FILTERS)[number];
+
+const EventCard = ({ event }: { event: GalleryEvent }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <article className="gradient-border rounded-2xl overflow-hidden card-hover animate-fade-in-up">
+      {/* Card Header — always visible */}
+      <button
+        onClick={() => setExpanded((prev) => !prev)}
+        className="w-full text-left p-6 flex items-start justify-between gap-4 group"
+      >
+        <div>
+          <span className="text-xs font-semibold uppercase tracking-widest text-primary/70 mb-2 block">
+            {event.category}
+          </span>
+          <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+            {event.title}
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
+          <p className="text-xs text-muted-foreground/60 mt-3">
+            {event.photos.length > 0
+              ? `${event.photos.length} photo${event.photos.length > 1 ? "s" : ""}`
+              : "Photos coming soon"}
+          </p>
+        </div>
+        <div className="mt-1 shrink-0 text-muted-foreground group-hover:text-primary transition-colors">
+          {expanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+        </div>
+      </button>
+
+      {/* Expanded Photo Grid */}
+      {expanded && (
+        <div className="px-6 pb-6">
+          {event.photos.length === 0 ? (
+            <div className="rounded-xl border border-border/40 bg-card/50 py-10 text-center text-muted-foreground">
+              <p className="text-3xl mb-2">📸</p>
+              <p className="text-sm">Photos will be added soon</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {event.photos.map((photo) => (
+                <div
+                  key={photo.id}
+                  className="relative rounded-xl overflow-hidden bg-card aspect-square group/photo"
+                >
+                  <img
+                    src={photo.url}
+                    alt={photo.caption || event.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover/photo:scale-105"
+                    loading="lazy"
+                  />
+                  {photo.caption && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-2 opacity-0 group-hover/photo:opacity-100 transition-opacity">
+                      <p className="text-xs text-white truncate">{photo.caption}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </article>
+  );
+};
 
 const Gallery = () => {
   const [activeFilter, setActiveFilter] = useState<Filter>("All");
 
   const filtered =
-    activeFilter === "All" ? photos : photos.filter((p) => p.category === activeFilter);
+    activeFilter === "All"
+      ? events
+      : events.filter((e) => e.category === activeFilter);
 
   return (
     <Layout>
@@ -65,42 +160,19 @@ const Gallery = () => {
         </div>
       </section>
 
-      {/* ── PHOTO GRID ── */}
+      {/* ── EVENT CARDS ── */}
       <section className="pb-24">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-4xl">
           {filtered.length === 0 ? (
             <div className="text-center py-24 text-muted-foreground">
               <p className="text-5xl mb-4">📸</p>
-              <p className="text-lg font-medium">Photos coming soon</p>
+              <p className="text-lg font-medium">No events yet in this category</p>
               <p className="text-sm mt-1">Check back after the next event!</p>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((photo, index) => (
-                <article
-                  key={photo.id}
-                  className="gradient-border p-3 card-hover animate-fade-in-up rounded-2xl"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <div className="relative rounded-xl overflow-hidden bg-card">
-                    <img
-                      src={photo.url}
-                      alt={photo.caption}
-                      className="w-full h-56 object-cover transition-transform duration-300 hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-3">
-                      <span className="text-xs font-medium text-white/70 uppercase tracking-wider">
-                        {photo.category}
-                      </span>
-                    </div>
-                  </div>
-                  {photo.caption && (
-                    <p className="text-sm text-muted-foreground mt-3 px-1 truncate" title={photo.caption}>
-                      {photo.caption}
-                    </p>
-                  )}
-                </article>
+            <div className="flex flex-col gap-4">
+              {filtered.map((event) => (
+                <EventCard key={event.id} event={event} />
               ))}
             </div>
           )}
