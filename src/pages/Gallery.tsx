@@ -2,9 +2,15 @@ import { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-// CATEGORY TYPES 
 
-type Category = "Workshops" | "Hackathons" | "Technical Events" | "Projects" | "Fun Activities";
+// CATEGORY TYPES
+
+type Category =
+  | "Workshops"
+  | "Hackathons"
+  | "Technical Events"
+  | "Projects"
+  | "Fun Activities";
 
 // EVENT TYPE STRUCTURE
 
@@ -16,8 +22,8 @@ type GalleryEvent = {
   photos: { id: string; url: string; caption?: string }[];
 };
 
-// EVENTS DATA
 
+// EVENTS DATA (ADD THE EVENTS HERE)
 const events: GalleryEvent[] = [
   {
     id: "chaos-or-release",
