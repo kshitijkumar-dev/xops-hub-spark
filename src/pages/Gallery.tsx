@@ -2,9 +2,9 @@ import { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-
-// CATEGORY TYPES
-
+// ─────────────────────────────────────────────────────────────
+// CATEGORY TYPES (DO NOT CHANGE UNLESS ADDING NEW CATEGORY)
+// ─────────────────────────────────────────────────────────────
 type Category =
   | "Workshops"
   | "Hackathons"
@@ -12,8 +12,9 @@ type Category =
   | "Projects"
   | "Fun Activities";
 
+// ─────────────────────────────────────────────────────────────
 // EVENT TYPE STRUCTURE
-
+// ─────────────────────────────────────────────────────────────
 type GalleryEvent = {
   id: string;
   title: string;
@@ -22,16 +23,17 @@ type GalleryEvent = {
   photos: { id: string; url: string; caption?: string }[];
 };
 
-
-// EVENTS DATA (ADD THE EVENTS HERE)
+// ─────────────────────────────────────────────────────────────
+// EVENTS DATA (ADD YOUR EVENTS HERE)
+// ─────────────────────────────────────────────────────────────
 const events: GalleryEvent[] = [
   {
     id: "chaos-or-release",
     title: "Chaos Or Release?",
     category: "Technical Events",
-    description: "A DevOps decision-making challenge where teams navigated real-world deployment scenarios.",
-    photos: [
-      { id: "1", url: "https://drive.google.com/uc?export=view&id=1E4BwUw4s1NHQvbmU4B_gSmFow3DXUbna", caption: "" },
+    description:
+      "A DevOps decision-making challenge where teams navigated real-world deployment scenarios.",
+    photos: [{ id: "1", url: "https://drive.google.com/uc?export=view&id=1E4BwUw4s1NHQvbmU4B_gSmFow3DXUbna", caption: "" },
       { id: "2", url: "https://drive.google.com/uc?export=view&id=15yjF6OBegjHJGZjyDgMv7Pj0xJ8jtn6O", caption: "" },
       { id: "3", url: "https://drive.google.com/uc?export=view&id=1y1Y9WICtM6wETjDB8Y3ylk7CdkburNzC", caption: "" },
       { id: "4", url: "https://drive.google.com/uc?export=view&id=1LE5WwYhOiPBxrsBj0UBMnveh7PoJ5-0z", caption: "" },
@@ -602,9 +604,11 @@ const events: GalleryEvent[] = [
       { id: "569", url: "https://drive.google.com/uc?export=view&id=1ne7TAYKo8fkKnWVXvGXmnM-TExYm4CNN", caption: "" },
       { id: "570", url: "https://drive.google.com/uc?export=view&id=1DbuIZ64PlsTlc3HLL8rb-I5DxX3oKxWl", caption: "" },
       { id: "571", url: "https://drive.google.com/uc?export=view&id=17LElYakA6bVS911TXVLLdCDwBiiGJtUW", caption: "" },
-    ],
+    ],],
   },
- {
+
+  // ✅ YOUR WORKSHOP ADDED
+  {
     id: "statistics-probability-workshop",
     title:
       "Statistics and Probability in Real World: Turning Uncertanity into Opportunity",
@@ -614,6 +618,7 @@ const events: GalleryEvent[] = [
     photos: [],
   },
 ];
+
 // ─────────────────────────────────────────────────────────────
 // EVENT CARD COMPONENT (NO CHANGE NEEDED HERE)
 // ─────────────────────────────────────────────────────────────
@@ -739,4 +744,3 @@ const Gallery = () => {
 };
 
 export default Gallery;
-
