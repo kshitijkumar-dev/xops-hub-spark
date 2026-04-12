@@ -33,7 +33,8 @@ const events: GalleryEvent[] = [
     category: "Technical Events",
     description:
       "A DevOps decision-making challenge where teams navigated real-world deployment scenarios.",
-    photos: [{ id: "1", url: "https://drive.google.com/uc?export=view&id=1E4BwUw4s1NHQvbmU4B_gSmFow3DXUbna", caption: "" },
+    photos: [
+      { id: "1", url: "https://drive.google.com/uc?export=view&id=1E4BwUw4s1NHQvbmU4B_gSmFow3DXUbna", caption: "" },
       { id: "2", url: "https://drive.google.com/uc?export=view&id=15yjF6OBegjHJGZjyDgMv7Pj0xJ8jtn6O", caption: "" },
       { id: "3", url: "https://drive.google.com/uc?export=view&id=1y1Y9WICtM6wETjDB8Y3ylk7CdkburNzC", caption: "" },
       { id: "4", url: "https://drive.google.com/uc?export=view&id=1LE5WwYhOiPBxrsBj0UBMnveh7PoJ5-0z", caption: "" },
@@ -604,7 +605,7 @@ const events: GalleryEvent[] = [
       { id: "569", url: "https://drive.google.com/uc?export=view&id=1ne7TAYKo8fkKnWVXvGXmnM-TExYm4CNN", caption: "" },
       { id: "570", url: "https://drive.google.com/uc?export=view&id=1DbuIZ64PlsTlc3HLL8rb-I5DxX3oKxWl", caption: "" },
       { id: "571", url: "https://drive.google.com/uc?export=view&id=17LElYakA6bVS911TXVLLdCDwBiiGJtUW", caption: "" },
-    ],],
+    ],
   },
 
   // ✅ YOUR WORKSHOP ADDED
