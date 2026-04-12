@@ -1,226 +1,162 @@
-import { ChangeEvent, useEffect, useState } from "react";
-import { ImagePlus, Trash2 } from "lucide-react";
+import { useState } from "react";
 import Layout from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
-type UploadedPhoto = {
+// ─────────────────────────────────────────────────────────────
+// CATEGORY TYPES
+// ─────────────────────────────────────────────────────────────
+type Category =
+  | "Workshops"
+  | "Hackathons"
+  | "Technical Events"
+  | "Projects"
+  | "Fun Activities";
+
+// ─────────────────────────────────────────────────────────────
+// EVENT TYPE STRUCTURE
+// ─────────────────────────────────────────────────────────────
+type GalleryEvent = {
   id: string;
-  name: string;
-  url: string;
-  uploadedAt: string;
+  title: string;
+  category: Category;
+  description: string;
+  photos: { id: string; url: string; caption?: string }[];
 };
 
-const MAX_PHOTOS = 24;
-const MAX_FILE_SIZE_MB = 8;
+// ─────────────────────────────────────────────────────────────
+// EVENTS DATA
+// ─────────────────────────────────────────────────────────────
+const events: GalleryEvent[] = [
+  {
+    id: "chaos-or-release",
+    title: "Chaos Or Release?",
+    category: "Technical Events",
+    description:
+      "A DevOps decision-making challenge where teams navigated real-world deployment scenarios.",
+    photos: [],
+  },
 
-const galleryItems = [
-  { title: "Workshop Highlights", emoji: "🎓" },
-  { title: "Hackathon Moments", emoji: "💻" },
-  { title: "Community Meetups", emoji: "🤝" },
-  { title: "Team Collaborations", emoji: "🧠" },
-  { title: "Tech Talks", emoji: "🎤" },
-  { title: "Club Achievements", emoji: "🏆" },
+  {
+    id: "statistics-probability-workshop",
+    title:
+      "Statistics and Probability in Real World: Turning Uncertainty into Opportunity",
+    category: "Workshops",
+    description:
+      "Enriching the knowledge of First-Year Students through JU Transformation.",
+    photos: [],
+  },
 ];
 
+// ─────────────────────────────────────────────────────────────
+// EVENT CARD COMPONENT
+// ─────────────────────────────────────────────────────────────
+const EventCard = ({ event }: { event: GalleryEvent }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <article className="gradient-border rounded-2xl overflow-hidden card-hover">
+      <button
+        onClick={() => setExpanded((prev) => !prev)}
+        className="w-full text-left p-6 flex items-start justify-between gap-4"
+      >
+        <div>
+          <span className="text-xs font-semibold uppercase tracking-widest text-primary/70 mb-2 block">
+            {event.category}
+          </span>
+
+          <h3 className="text-xl font-bold">{event.title}</h3>
+
+          <p className="text-sm text-muted-foreground mt-1">
+            {event.description}
+          </p>
+
+          <p className="text-xs text-muted-foreground/60 mt-3">
+            {event.photos.length > 0
+              ? `${event.photos.length} photo${
+                  event.photos.length > 1 ? "s" : ""
+                }`
+              : "Photos coming soon"}
+          </p>
+        </div>
+
+        <div>
+          {expanded ? (
+            <ChevronUp className="h-5 w-5" />
+          ) : (
+            <ChevronDown className="h-5 w-5" />
+          )}
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="px-6 pb-6">
+          {event.photos.length === 0 ? (
+            <div className="text-center text-muted-foreground">
+              Photos will be added soon
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {event.photos.map((photo) => (
+                <img
+                  key={photo.id}
+                  src={photo.url}
+                  alt={photo.caption || event.title}
+                  className="w-full h-full object-cover"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </article>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────
+// MAIN COMPONENT
+// ─────────────────────────────────────────────────────────────
 const Gallery = () => {
-  const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const loadPhotos = async () => {
-    try {
-      const response = await fetch("/api/gallery");
-      const payload = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(payload?.message || "Failed to load gallery.");
-      }
-
-      setPhotos(Array.isArray(payload?.photos) ? payload.photos : []);
-      setErrorMessage("");
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Could not load gallery photos.");
-    } finally {
-      setIsLoading(false);
-    }
+  const groupedEvents: Record<Category, GalleryEvent[]> = {
+    Workshops: [],
+    Hackathons: [],
+    "Technical Events": [],
+    Projects: [],
+    "Fun Activities": [],
   };
 
-  useEffect(() => {
-    void loadPhotos();
-  }, []);
-
-  const handleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    setErrorMessage("");
-    const selectedFiles = Array.from(event.target.files || []);
-
-    if (!selectedFiles.length) {
-      return;
-    }
-
-    if (photos.length + selectedFiles.length > MAX_PHOTOS) {
-      setErrorMessage(`You can keep up to ${MAX_PHOTOS} photos in the gallery.`);
-      event.target.value = "";
-      return;
-    }
-
-    const oversized = selectedFiles.find((file) => file.size > MAX_FILE_SIZE_MB * 1024 * 1024);
-    if (oversized) {
-      setErrorMessage(`${oversized.name} is too large. Max size is ${MAX_FILE_SIZE_MB}MB per image.`);
-      event.target.value = "";
-      return;
-    }
-
-    const formData = new FormData();
-    selectedFiles.forEach((file) => formData.append("photos", file));
-
-    setIsUploading(true);
-    try {
-      const response = await fetch("/api/gallery", {
-        method: "POST",
-        body: formData,
-      });
-
-      const payload = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(payload?.message || "Upload failed. Please try again.");
-      }
-
-      const newPhotos = Array.isArray(payload?.photos) ? payload.photos : [];
-      setPhotos((prev) => [...newPhotos, ...prev]);
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Could not upload photos.");
-    } finally {
-      setIsUploading(false);
-      event.target.value = "";
-    }
-  };
-
-  const handleDeletePhoto = async (id: string) => {
-    setErrorMessage("");
-    try {
-      const response = await fetch(`/api/gallery/${id}`, { method: "DELETE" });
-      const payload = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(payload?.message || "Could not delete photo.");
-      }
-
-      setPhotos((prev) => prev.filter((photo) => photo.id !== id));
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Could not delete photo.");
-    }
-  };
+  events.forEach((event) => {
+    groupedEvents[event.category].push(event);
+  });
 
   return (
     <Layout>
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-hero-gradient opacity-40" />
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Event <span className="text-gradient">Gallery</span>
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              A visual snapshot of X-Ops community events, learning sessions, and milestones.
-            </p>
-          </div>
-        </div>
+      {/* HERO SECTION */}
+      <section className="py-20 text-center">
+        <h1 className="text-4xl font-bold">Gallery</h1>
+        <p className="text-muted-foreground">
+          Moments captured from our journey
+        </p>
       </section>
 
-      <section className="pb-12">
-        <div className="container mx-auto px-4">
-          <div className="glass border border-border/50 rounded-2xl p-6 md:p-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-semibold">Add Photos From Your Device</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Upload JPG, PNG, WEBP, or GIF images. Photos are shared from the server.
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <label
-                  htmlFor="gallery-upload"
-                  className="inline-flex items-center gap-2 h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium cursor-pointer hover:opacity-90 transition-opacity"
-                >
-                  <ImagePlus className="h-4 w-4" />
-                  {isUploading ? "Uploading..." : "Upload Photos"}
-                </label>
-                <input
-                  id="gallery-upload"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={handleUpload}
-                  disabled={isUploading}
-                />
-                <Button type="button" variant="outline" onClick={() => void loadPhotos()} disabled={isUploading}>
-                  Refresh
-                </Button>
+      {/* CATEGORY SECTIONS */}
+      <section className="pb-24 space-y-16">
+        {Object.entries(groupedEvents).map(([category, categoryEvents]) => {
+          if (categoryEvents.length === 0) return null;
+
+          return (
+            <div key={category} className="container mx-auto px-4 max-w-4xl">
+              <h2 className="text-2xl font-bold mb-6 border-b pb-2">
+                {category}
+              </h2>
+
+              <div className="flex flex-col gap-4">
+                {categoryEvents.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
               </div>
             </div>
-
-            {errorMessage && <p className="text-sm text-destructive mt-4">{errorMessage}</p>}
-            {isLoading && <p className="text-sm text-muted-foreground mt-4">Loading gallery photos...</p>}
-
-            <p className="text-xs text-muted-foreground mt-4">
-              {photos.length} / {MAX_PHOTOS} photos shown
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {photos.length > 0 && (
-        <section className="pb-16">
-          <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold mb-6">Uploaded Photos</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {photos.map((photo, index) => (
-                <article
-                  key={photo.id}
-                  className="gradient-border p-3 card-hover animate-fade-in-up"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <div className="relative rounded-lg overflow-hidden bg-card">
-                    <img src={photo.url} alt={photo.name} className="w-full h-56 object-cover" loading="lazy" />
-                    <button
-                      type="button"
-                      onClick={() => void handleDeletePhoto(photo.id)}
-                      className="absolute top-2 right-2 h-8 w-8 rounded-full bg-background/90 hover:bg-background flex items-center justify-center border border-border/60"
-                      aria-label={`Delete ${photo.name}`}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </button>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-3 truncate" title={photo.name}>
-                    {photo.name}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      <section className="pb-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6">Club Highlights</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {galleryItems.map((item, index) => (
-              <article
-                key={item.title}
-                className="gradient-border p-8 card-hover animate-fade-in-up"
-                style={{ animationDelay: `${index * 0.08}s` }}
-              >
-                <div className="text-5xl mb-4">{item.emoji}</div>
-                <h2 className="text-xl font-semibold mb-2">{item.title}</h2>
-                <p className="text-sm text-muted-foreground">More event photos and highlights coming soon.</p>
-              </article>
-            ))}
-          </div>
-        </div>
+          );
+        })}
       </section>
     </Layout>
   );
